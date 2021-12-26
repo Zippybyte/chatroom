@@ -25,11 +25,11 @@ TODO:
 e
 """
 
-
+# The main entrance
 @app.route("/")
 def index():
     return render_template("")
-    
+
 def errorhandler(e):
     """Handle error"""
     if not isinstance(e, HTTPException):
@@ -40,5 +40,6 @@ def errorhandler(e):
 for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
 
+# Run the app
 if __name__ == "__main__":
     socketio.run(app)
