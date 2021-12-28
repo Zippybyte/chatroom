@@ -37,7 +37,7 @@ figure out how to make a lobby system
 
 # Lobby
 @app.route("/", methods=["GET", "POST"])
-def index():
+def lobby():
     if request.method == "POST":
         
         roomname = request.form.get("room")
@@ -51,6 +51,7 @@ def index():
     else:
         return render_template("lobby.html")
 
+# Prompts the user for a username when entering or creating a room
 @app.route("/room/<string:roomname>/username/", methods=["GET", "POST"])
 def username(roomname):
 
@@ -63,7 +64,6 @@ def username(roomname):
             return error("Username must be text", 400)
 
         return redirect(url_for("room", roomname=roomname))
-
     else:
         return render_template("username.html")
 
@@ -73,7 +73,6 @@ def username(roomname):
 def no_room():
     return redirect(url_for("lobby"))
 
-# Rooms where the user will use the most
 @app.route("/room/<string:roomname>")
 def room(roomname):
 
