@@ -35,7 +35,7 @@ figure out how to make a lobby system
 
 """
 
-# Asks the user for a username
+# Lobby
 @app.route("/", methods=["GET", "POST"])
 def username():
 
@@ -47,7 +47,7 @@ def username():
         elif type(username) != str:
             return error("Username must be text", 400)
 
-        return redirect("/lobby ")
+        return redirect("/lobby")
 
     else:
         return render_template("username.html")
