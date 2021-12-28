@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Error
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <h5>
+            {{ message }}
+        </h5>
+        
+        <br>
+
+        <h5>
+            {{ code }}
+        </h5>
+    </div>
+{% endblock %}

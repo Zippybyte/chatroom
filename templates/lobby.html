@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block script %}
+{% endblock %}
+
+{% block title %}
+    Lobby
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="row">
+            <label>Create or Join a room</label>
+            <div class="h-1"></div>
+            <form id="join_room" class="d-inline-flex" method="post">
+                <input name="room" id="room" type="text" placeholder="Room" aria-label="Create or Join a room" autocomplete="off" autocapitalize="off" required>
+                <button class="btn btn-primary" type="submit">Enter</button>
+            </form>
+        </div> 
+    </div>
+{% endblock %}
