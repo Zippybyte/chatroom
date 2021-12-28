@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block script %}
+<script type="text/javascript" charset="utf-8">
+    document.addEventListener("DOMContentLoaded", function() {
+        var socket = io("http://localhost:5000");
+
+        if (localStorage.getItem("name") == null) {
+            window.location.href = "/username";
+        };
+
+    });
+</script>
+{% endblock %}
+
+{% block title %}
+    Lobby
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="row">
+
+        </div> 
+    </div>
+{% endblock %}
