@@ -4,11 +4,11 @@
 <script type="text/javascript" charset="utf-8">
     document.addEventListener("DOMContentLoaded", function() {
         if (localStorage.getItem("name") != null) {
-            localStorage.clear()
+            localStorage.removeItem("name");
         };
 
         document.getElementById("login").onsubmit = function() {
-            localStorage.clear();
+            localStorage.removeItem("name");
             localStorage.setItem("name", document.getElementById("username").value);
         };
     });
@@ -16,14 +16,13 @@
 {% endblock %}
 
 {% block title %}
-    Username
 {% endblock %}
 
 {% block body %}
     <div class="container-fluid d-flex justify-content-center">
         <div class="row d-inline-flex mt-5">
             <form id="login" class="d-inline-flex" method="post">
-                <input name="username" id="username" type="text" placeholder="Username" aria-label="Enter username" autocomplete="off" autocapitalize="off" required>
+                <input name="username" id="username" type="text" placeholder="Username" aria-label="Enter username" maxlength=20 autocomplete="off" autocapitalize="off" required>
                 <button class="btn btn-primary" type="submit">Enter</button>
             </form>
         </div> 
