@@ -6,9 +6,8 @@
         var socket = io("http://localhost:5000");
 
         if (localStorage.getItem("name") == null) {
-            window.location.href = "/username";
+            window.location.href = "/";
         };
-
     });
 </script>
 {% endblock %}
@@ -21,6 +20,9 @@
     <div class="container-fluid">
         <div class="row">
 
-        </div> 
+        </div>
+        <div>
+            
+        </div>
     </div>
 {% endblock %}

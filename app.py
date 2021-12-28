@@ -37,23 +37,6 @@ figure out how to make a lobby system
 
 # Lobby
 @app.route("/", methods=["GET", "POST"])
-def username():
-
-    if request.method == "POST":
-        username = request.form.get("username")
-
-        if not username:
-            return error("Must input a username", 400)
-        elif type(username) != str:
-            return error("Username must be text", 400)
-
-        return redirect("/lobby")
-
-    else:
-        return render_template("username.html")
-
-# Lobby so that users can connect to rooms
-@app.route("/lobby", methods=["GET", "POST"])
 def lobby():
     if request.method == "POST":
         
@@ -64,16 +47,32 @@ def lobby():
         elif type(roomname) != str:
             return error("Room name must be a made of letters", 400)
 
-        return redirect(url_for("room", roomname=roomname))
+        return redirect(url_for("username", roomname=roomname))
     else:
         return render_template("lobby.html")
 
-# If the user goes directly to /room redirect them to lobby
+# Prompts the user for a username when entering or creating a room
+@app.route("/room/<string:roomname>/username/", methods=["GET", "POST"])
+def username(roomname):
+
+    if request.method == "POST":
+        username = request.form.get("username")
+
+        if not username:
+            return error("Must input a username", 400)
+        elif type(username) != str:
+            return error("Username must be text", 400)
+
+        return redirect(url_for("room", roomname=roomname))
+    else:
+        return render_template("username.html")
+
+# If the user goes directly to /room or /username redirect them to lobby
+@app.route("/username")
 @app.route("/room")
 def no_room():
-    return redirect("/lobby")
+    return redirect(url_for("lobby"))
 
-# Rooms where the user will use the most
 @app.route("/room/<string:roomname>")
 def room(roomname):
 
