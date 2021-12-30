@@ -4,34 +4,60 @@
 <script type="text/javascript" charset="utf-8">
     document.addEventListener("DOMContentLoaded", function() {
         if (localStorage.getItem("name") == null) {
-            console.log("no name")
-        };
-        
-        var socket = io("http://localhost:5000");
+            window.location.href = window.location.href + "/username/"
+        }
+        else {
+            var url = window.location.pathname;
+            var roomName = url.substring(url.indexOf("/", url.indexOf("/") + 1) + 1)
+            
+            var socket = io.connect("http://localhost:5000");
 
-        socket.on("connect", function() {
-            console.log("Client connection sent");
-        })
+            socket.on("connect", function() {
+                console.log("Client connection sent"); 
+            })
 
-        socket.on("server_connect", function(data) {
-            console.log(data);
-        })
+            socket.on("server_connect", function(data) {
+                console.log(data);
+            })
 
-        socket.emit("client_join", {"name": localStorage.getItem("name"), "roomname": document.getElementById("roomname")})
+            socket.emit("client_join", {"name": localStorage.getItem("name"), "roomname": roomName})
 
-        socket.on("opponent_join", function() {
-            // TODO
-        })
-        
-        socket.on("user_message", function() {
-            // TODO: implement chatroom functions
-        })
+            document.getElementById("change_name_button").onclick = function() {
+                socket.emit("name_change", {"new_name": document.getElementById("username").value, "old_name": localStorage.getItem("name"), "roomname": roomName})
+                socket.on("name_change_confirm", function(data) {
+                    if (data == "allowed") {
+                        localStorage.removeItem("name")
+                        localStorage.setItem("name", document.getElementById("username").value)
+                        document.getElementById("username").value = ""
+                    }
+                    else {
+                        console.log(data)
+                    }
+                })
+                return false;
+            };
+            
+            // Encases all of the messages from server
+            socket.on("server_message", function(data) {
+                if (data["msgtype"] == "user_message") {
+                    console.log(data) // TODO
+                }
+                else if (data["msgtype"] == "name_change") {
+                    console.log(data) // TODO
+                }
+                else if (data["msgtype"] == "user_join") {
+                    console.log(data) // TODO
+                }
+                else if (data["msgtype"] == "user_disconnect") {
+                    console.log(data) // TODO
+                }
+                else {
+                    console.log("unknown server message")
+                }
 
-        
-
-        socket.on("opponent_disconnect", function() {
-            // TODO
-        })
+                // TODO: implement chatroom functions
+            })
+        }
     });
 </script>
 {% endblock %}
@@ -44,9 +70,15 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col">
-                <button id="leave" class="btn btn-primary"><a href="/">Leave</a></button>
-                <button id="change_name" class="btn btn-primary">Change name</button>
+                <a href="/"><button id="leave" class="btn btn-primary">Leave</button></a>
+                <button id="change_name" type="button" class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#change_name_collapse">Change name</button>
                 <span>Room name: <span id="roomname">{{ roomname }}</span></span>
+            </div>
+        </div>
+        <div class="collapse" id="change_name_collapse">
+            <div id="change_name" class="d-inline-flex">
+                <input name="username" id="username" type="text" placeholder="Username" aria-label="Enter username" maxlength=20 autocomplete="off" autocapitalize="off" required>
+                <button id="change_name_button" class="btn btn-primary" type="button">Enter</button>
             </div>
         </div>
         <div class="row">

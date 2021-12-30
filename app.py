@@ -68,37 +68,61 @@ def username(roomname):
         elif type(username) != str:
             return error("Username must be text", 400)
         elif len(username) > 20:
-            return error("Username must be less than 20 characters long")
+            return error("Username must be less than 20 characters long", 400)
+
+        session["name"] = username
 
         return redirect(url_for("room", roomname=roomname))
     else:
         return render_template("username.html")
 
-# If the user goes directly to /room or /username redirect them to lobby
-@app.route("/username")
-@app.route("/room")
+# If the user goes directly to /room redirect them to lobby
+@app.route("/room/")
 def no_room():
     return redirect(url_for("lobby"))
 
 # Makes a room
-@app.route("/room/<string:roomname>")
+@app.route("/room/<string:roomname>/")
 def room(roomname):
-    return render_template("room.html", roomname=roomname)
+    if request.method == "GET":
+        return render_template("room.html", roomname=roomname)
+    else:
+        return redirect(url_for("username", roomname=roomname))
 
-socketio.on("connect")
-def connect():
+@socketio.on("connect")
+def connect(data):
     emit("server_connect", "Server connected")
 
-socketio.on("client_join")
-def client_join():
+@socketio.on("client_join")
+def client_join(data):
+    join_room(data["roomname"])
+    session["room"] = data["roomname"]
+    emit("server_message", {"msgtype": "user_join", "message": data["name"] + " has joined"}, to=data["roomname"])
 
-    # TODO
-    emit()
+@socketio.on("name_change")
+def name_change(data):
 
-socketio.on("disconnect")
+    username = data["new_name"]
+
+    # These should only activate if they mess with the javascript
+    if not username:
+        emit("name_change_confirm", "New name cannot be nothing" )
+        return False
+    elif type(username) != str:
+        emit("name_change_confirm", "New name must be text")
+        return False
+    elif len(username) > 20:
+        emit("name_change_confirm", "New name must be less than 20 characters long")
+        return False    
+    # New name is within parameters
+    else:
+        session["name"] = username
+        emit("name_change_confirm", "allowed")
+        emit("server_message", {"msgtype": "name_change", "message": '"'+ data["old_name"] + '" has changed their name to "' + data["new_name"] + '"'}, to=data["roomname"])
+
+@socketio.on("disconnect")
 def disconnect():
-    # TODO
-    emit("opponent_disconnect")
+    emit("server_message", {"msgtype": "user_disconnect", "message": session.get("name") + " has disconnected"}, to=session.get("room"))
 
 def errorhandler(e):
     """Handle error"""
