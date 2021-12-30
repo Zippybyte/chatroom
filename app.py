@@ -32,9 +32,6 @@ TODO:
 Room html
 App room code
 
-change username to not be a page and instead just exist in room.html somehow
-figure out how to display a page and then display a different page while staying on the same url
-
 """
 
 # Lobby
