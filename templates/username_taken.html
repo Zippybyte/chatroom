@@ -3,12 +3,8 @@
 {% block frontscript %}
 <script type="text/javascript" charset="utf-8">
     document.addEventListener("DOMContentLoaded", function() {
-        if (localStorage.getItem("name") == "") {
+        if (localStorage.getItem("name") != null) {
             localStorage.removeItem("name");
-        }
-        else if (localStorage.getItem("name") != null) {
-            document.getElementById("username").value = localStorage.getItem("name");
-            document.getElementById("login").submit();
         };
 
         document.getElementById("login").onsubmit = function() {
@@ -24,6 +20,9 @@
 
 {% block body %}
     <div class="container-fluid">
+        <h1 id="error" class="row justify-content-center">
+            Username already taken
+        </h1>
         <div class="row mt-5 d-flex justify-content-center">
             <form id="login" class="d-inline-flex" method="post">
                 <input name="username" id="username" type="text" placeholder="Username" aria-label="Enter username" maxlength=20 autocomplete="off" autocapitalize="off" required>

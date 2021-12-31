@@ -26,49 +26,11 @@ rooms = {}
 """
 Plans:
 
-Room system
-How do I know what room and name is?
-You use local storage to know.
-
-Okay what do I need to do?
-make the chatbox so that people can talk
-make the dice rolling
-make the dice options that get sent by the server
-make it disable when it's not your turn
-make the ready button
-chatbox
-lobby info
-
-HOW IN THE WORLD WOULD A USER LIST WORK?
-in server
-it has to update whenever someone sends them an update.
-when tho
-User join, name change, user disconnect
-
-(host)
-user joins 
-sends to server user join and name and stuff
-host then gets updated by user join. how do I know who is in the room?
-
-when someone joins the room they send user_joined to server then
-server emits back to everyone user_join they send their name to the server then
-
-server sends back a new userlist
-
 
 TODO: 
 lobby info
 chatbox
-ready button
-dice roll
-dice options
-disable
 
-
-Room html
-App room code
-
-Zilch
 
 """
 
@@ -105,14 +67,36 @@ def username(roomname):
             return error("Username must be less than 20 characters long", 400)
         elif roomname in rooms:
             if username in rooms[roomname]:
-                print("E E EE EE")
-                return render_template("username.html", error="Username already taken")
+                return redirect(url_for("username_taken", roomname=roomname))
 
         session["name"] = username
 
         return redirect(url_for("room", roomname=roomname))
     else:
         return render_template("username.html")
+
+# Used if the user tries to join a room with the same name as someone in the room
+@app.route("/room/<string:roomname>/username/taken", methods=["GET", "POST"])
+def username_taken(roomname):
+
+    if request.method == "POST":
+        username = request.form.get("username")
+
+        if not username:
+            return error("Must input a username", 400)
+        elif type(username) != str:
+            return error("Username must be text", 400)
+        elif len(username) > 20:
+            return error("Username must be less than 20 characters long", 400)
+        elif roomname in rooms:
+            if username in rooms[roomname]:
+                return render_template("username_taken.html")
+
+        session["name"] = username
+
+        return redirect(url_for("room", roomname=roomname))
+    else:
+        return render_template("username_taken.html")
 
 # If the user goes directly to /room redirect them to lobby
 @app.route("/room/")
@@ -141,6 +125,10 @@ def client_join(data):
     session["room"] = data["roomname"]
 
     if data["roomname"] in rooms:
+        if data["name"] in rooms[data["roomname"]]:
+            leave_room(data["roomname"])
+            return redirect(url_for("username_taken", roomname=data["roomname"]))
+        
         rooms[data["roomname"]].append(data["name"])
     else:
         rooms[data["roomname"]] = []

@@ -19,9 +19,17 @@
 
             socket.on("server_connect", function(data) {
                 console.log(data);
+                socket.emit("client_join", {"name": localStorage.getItem("name"), "roomname": roomName});
+                localStorage.setItem("taken", false)
+                
+                socket.once("userlist", function(data) {
+                    userlist = data["userlist"];
+                    if (userlist.includes(localStorage.getItem("name"))) {
+                        let url = window.location.href;
+                        window.location.href = url + "username/taken";
+                    }
+                });
             })
-
-            socket.emit("client_join", {"name": localStorage.getItem("name"), "roomname": roomName})
 
             document.getElementById("change_name_button").onclick = function() {
                 socket.emit("name_change", {"new_name": document.getElementById("username").value, "old_name": localStorage.getItem("name"), "roomname": roomName})
@@ -30,14 +38,16 @@
                         localStorage.removeItem("name")
                         localStorage.setItem("name", document.getElementById("username").value)
                         new bootstrap.Collapse(document.getElementById("change_name_collapse"))
+                        document.getElementById("username").value = ""
                     }
                     else {
                         console.log(data)
                         alert(data)
+                        document.getElementById("username").value = ""
                     }
                 })
 
-                document.getElementById("username").value = ""
+                
                 return false;
             };
 
@@ -61,7 +71,10 @@
                 }
                 // User Joins
                 else if (data["msgtype"] == "user_join") {
-                    
+                    if (userlist.includes(data["name"])) {
+                        
+                    }
+
                     for (let i = 0; i < userlist.length; i++) {
                         change_user_list(userlist[0], "remove")
                     }
@@ -151,11 +164,11 @@
         <div id="topbar" class="row-lg">
             <div class="col-lg">
                 <a href="/"><button id="leave" class="btn btn-primary">Leave</button></a>
-                <button id="change_name" type="button" class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#change_name_collapse">Change name</button>
+                <button id="change_name" type="button" class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#change_name_collapse" aria-controls="change_name_collapse" aria-expanded="false">Change name</button>
                 <span>Room name: <span id="roomname">{{ roomname }}</span></span>
             </div>
         </div>
-        <div id="change_name_collapse" class="collapse">
+        <div id="change_name_collapse" aria class="collapse">
             <div id="change_name" class="d-inline-flex">
                 <input id="username" type="text" placeholder="Username" aria-label="Enter username" maxlength=20 autocomplete="off" autocapitalize="off" required>
                 <button id="change_name_button" class="btn btn-primary" type="button">Enter</button>
