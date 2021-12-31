@@ -156,7 +156,7 @@
 {% endblock %}
 
 {% block title %}
-    
+: {{ roomname }}
 {% endblock %}
 
 {% block body %}
@@ -182,7 +182,7 @@
                 </ul>
                 <form id="chatbox" class="d-table w-100">
                     <div class="d-table-cell w-100">
-                        <input name="message" id="message" class="w-100" type="text" autocomplete="off" required>
+                        <input name="message" id="message" placeholder="Message" class="w-100" type="text" autocomplete="off" required>
                     </div>
                     <div class="d-table-cell align-top">
                         <button class="btn btn-primary" id="message_submit" type="submit">Send</button>

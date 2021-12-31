@@ -105,8 +105,6 @@ def no_room():
 def room(roomname):
     if request.method == "GET":
         return render_template("room.html", roomname=roomname)
-    else:
-        return redirect(url_for("username", roomname=roomname))
 
 # Basic connection
 @socketio.on("connect")

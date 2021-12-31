@@ -16,6 +16,7 @@
 {% endblock %}
 
 {% block title %}
+: uh oh
 {% endblock %}
 
 {% block body %}
@@ -23,11 +24,12 @@
         <h1 id="error" class="row justify-content-center">
             Username already taken
         </h1>
-        <div class="row mt-5 d-flex justify-content-center">
-            <form id="login" class="d-inline-flex" method="post">
+        <div class="row g-0 mt-5 text-center">
+            <h3>Enter your username</h3>
+            <form id="login" class="d-flex justify-content-center" method="post">
                 <input name="username" id="username" type="text" placeholder="Username" aria-label="Enter username" maxlength=20 autocomplete="off" autocapitalize="off" required>
                 <button class="btn btn-primary" type="submit">Enter</button>
             </form>
-        </div> 
+        </div>
     </div>
 {% endblock %}
