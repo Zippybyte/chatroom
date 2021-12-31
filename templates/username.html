@@ -4,9 +4,14 @@
 <script type="text/javascript" charset="utf-8">
     document.addEventListener("DOMContentLoaded", function() {
         if (localStorage.getItem("name") != null) {
-            var url = window.location.href;
-            var room = url.substring(0, url.lastIndexOf("username"))
-            window.location.replace(room);
+            if (document.getElementById("error").value != "") {
+                localStorage.removeItem("name");
+                document.getElementById("username").value = "";
+            }
+            else {
+                document.getElementById("username").value = localStorage.getItem("name");
+                document.getElementById("login").submit();
+            }
         };
 
         document.getElementById("login").onsubmit = function() {
@@ -21,8 +26,11 @@
 {% endblock %}
 
 {% block body %}
-    <div class="container-fluid d-flex justify-content-center">
-        <div class="row d-inline-flex mt-5">
+    <div class="container-fluid">
+        <h1 id="error" class="row justify-content-center">
+            {{ error }}
+        </h1>
+        <div class="row mt-5 d-flex justify-content-center">
             <form id="login" class="d-inline-flex" method="post">
                 <input name="username" id="username" type="text" placeholder="Username" aria-label="Enter username" maxlength=20 autocomplete="off" autocapitalize="off" required>
                 <button class="btn btn-primary" type="submit">Enter</button>

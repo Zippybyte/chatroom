@@ -3,14 +3,15 @@
 {% block script %}
 <script type="text/javascript" charset="utf-8">
     document.addEventListener("DOMContentLoaded", function() {
-        if (localStorage.getItem("name") == null) {
+        if (localStorage.getItem("name") == null || localStorage.getItem("name") == "") {
             window.location.href = window.location.href + "/username/"
         }
         else {
             var url = window.location.pathname;
-            var roomName = url.substring(url.indexOf("/", url.indexOf("/") + 1) + 1)
+            var roomName = url.substring(url.indexOf("/", url.indexOf("/") + 1) + 1, url.lastIndexOf("/"))
             
             var socket = io.connect("http://localhost:5000");
+            var userlist = []
 
             socket.on("connect", function() {
                 console.log("Client connection sent"); 
@@ -24,37 +25,118 @@
 
             document.getElementById("change_name_button").onclick = function() {
                 socket.emit("name_change", {"new_name": document.getElementById("username").value, "old_name": localStorage.getItem("name"), "roomname": roomName})
-                socket.on("name_change_confirm", function(data) {
+                socket.once("name_change_confirm", function(data) {
                     if (data == "allowed") {
                         localStorage.removeItem("name")
                         localStorage.setItem("name", document.getElementById("username").value)
-                        document.getElementById("username").value = ""
+                        new bootstrap.Collapse(document.getElementById("change_name_collapse"))
                     }
                     else {
                         console.log(data)
+                        alert(data)
                     }
                 })
+
+                document.getElementById("username").value = ""
+                return false;
+            };
+
+            document.getElementById("chatbox").onsubmit = function() {
+                console.log("message sent")
+                socket.emit("client_message", {"message": document.getElementById("message").value, "name": localStorage.getItem("name"), "roomname": roomName})
+                document.getElementById("message").value = "";
                 return false;
             };
             
             // Encases all of the messages from server
             socket.on("server_message", function(data) {
                 if (data["msgtype"] == "user_message") {
-                    console.log(data) // TODO
+                    chat_message(data["message"], data["name"]);
                 }
+                // Name change
                 else if (data["msgtype"] == "name_change") {
-                    console.log(data) // TODO
+                    userlist = data["userlist"]
+                    change_user_list(data["new_name"], "replace", data["old_name"])
+                    chat_message(data["message"]);
                 }
+                // User Joins
                 else if (data["msgtype"] == "user_join") {
-                    console.log(data) // TODO
+                    
+                    for (let i = 0; i < userlist.length; i++) {
+                        change_user_list(userlist[0], "remove")
+                    }
+                    userlist = data["userlist"]
+                    for (let i = 0; i < userlist.length; i++) {
+                        change_user_list(userlist[i], "add")
+                    }
+                    chat_message(data["message"]);
                 }
+                // User Disconnects
                 else if (data["msgtype"] == "user_disconnect") {
-                    console.log(data) // TODO
+                    userlist = data["userlist"]
+                    change_user_list(data["name"], "remove")
+                    chat_message(data["message"]);
                 }
                 else {
                     console.log("unknown server message")
                 }
-            })
+            });
+
+            function chat_message(message, name) {
+                let mainNode = document.createElement("li");
+                mainNode.className = "mainNode m-1 p-1 d-flex";
+                
+                let msgNode = document.createElement("span");
+                let text = document.createTextNode(message);
+                msgNode.className = "message";
+                msgNode.append(text);
+
+                if (name != undefined) {
+                    let nameNode = document.createElement("span");
+                    let nameText = document.createTextNode(name);
+                    nameNode.className = "border rounded me-2 p-1";
+                    nameNode.append(nameText);
+                    mainNode.append(nameNode, msgNode);
+                }
+                else {
+                    mainNode.append(msgNode);
+                }
+
+                let chat = document.getElementById("chat");
+                
+                // Checks if log is scrolled to the bottom
+                var isScrolledToBottom = chat.scrollHeight - chat.clientHeight <= chat.scrollTop + 1;
+                chat.append(mainNode);
+                
+                if (isScrolledToBottom) {
+                    mainNode.scrollIntoView();
+                }
+
+                return true;
+            }
+
+            function change_user_list(name, type, old_name) {
+                if (type == "add") {
+                    let user = document.createElement("li");
+                    user.className = "mainNode m-1 p-1 d-flex";
+                    user.id = name;
+
+                    let nameNode = document.createTextNode(name);
+                    user.append(nameNode);
+                    
+                    let user_list = document.getElementById("user_list");
+                    user_list.append(user);
+                    
+                }
+                else if (type == "replace") {
+                    document.getElementById(old_name).textContent = name;
+                    document.getElementById(old_name).id = name
+                }
+                else if (type == "remove") {
+                    document.getElementById(name).remove();
+                }
+                return true;
+            }
         }
     });
 </script>
@@ -66,21 +148,53 @@
 
 {% block body %}
     <div class="container-fluid">
-        <div class="row">
-            <div class="col">
+        <div id="topbar" class="row-lg">
+            <div class="col-lg">
                 <a href="/"><button id="leave" class="btn btn-primary">Leave</button></a>
                 <button id="change_name" type="button" class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#change_name_collapse">Change name</button>
                 <span>Room name: <span id="roomname">{{ roomname }}</span></span>
             </div>
         </div>
-        <div class="collapse" id="change_name_collapse">
+        <div id="change_name_collapse" class="collapse">
             <div id="change_name" class="d-inline-flex">
-                <input name="username" id="username" type="text" placeholder="Username" aria-label="Enter username" maxlength=20 autocomplete="off" autocapitalize="off" required>
+                <input id="username" type="text" placeholder="Username" aria-label="Enter username" maxlength=20 autocomplete="off" autocapitalize="off" required>
                 <button id="change_name_button" class="btn btn-primary" type="button">Enter</button>
             </div>
         </div>
-        <div class="row">
-            
-        </div>
+        <main class="row">
+            <div id="main_content" class="col-lg-9">
+                hi
+            </div>
+            <div id="sidebar" class="col-lg-3">
+                <div class="accordion" id="user_list_accordian">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="user_list_heading">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#user_list_collapse" aria-expanded="true" aria-controls="user_list_collpase">
+                          User List
+                        </button>
+                      </h2>
+                      <div id="user_list_collapse" class="accordion-collapse collapse show" aria-labelledby="user_list_heading">
+                        <div class="accordion-body">
+                            <ul id="user_list">
+
+                            </ul>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+                <ul id="chat">
+
+                </ul>
+                <div>
+                    <form id="chatbox" class="d-inline-flex">
+                        <input name="message" id="message" type="text" autocomplete="off" required>
+                        <button class="btn btn-primary" id="message_submit" type="submit">Send</button>
+                    </form>
+                </div>                
+                <ul id="scoring">
+
+                </ul>
+            </div>
+        </main>
     </div>
 {% endblock %}
