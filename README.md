@@ -7,24 +7,25 @@
   You can create rooms by just imputting a room name and people can connect to the room with the room name.
 
 #### File Descriptions:
-  app.py
-  helpers.py
-  ######requirements.txt
+  ###### app.py
+  ###### helpers.py
+  ###### requirements.txt
   
   
-  ######.gitignore
+  ###### .gitignore
   It stops git from including useless files like the .venv or pycache
   
-  ######README.md
+  ###### README.md
   Hey, that's me!
   
-  #####static
+  ##### static
   ######
   
-  #####templates
-  ######lobby.html
-  ######username.html
-  ######username_taken.html
-  ######room.html
-  ######error.html
-  ######layout.html
+  ##### templates
+  ###### lobby.html
+  ###### username.html
+  ###### username_taken.html
+  ###### room.html
+  ###### error.html
+  ###### layout.html
+ 
