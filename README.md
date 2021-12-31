@@ -29,12 +29,12 @@
   Hey, that's me!
   
   
-  ##### static
+  #### static
   - ###### styles.css
   Contains a tiny amount of css because I was mostly using bootstrap for most css problems.
   
   
-  ##### templates
+  #### templates
   - ###### lobby.html
   You can create a room by inputting a word, name, or just random words.
   People can then connect to that room by putting in that same name or connect via a link. 
