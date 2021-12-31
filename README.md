@@ -8,8 +8,8 @@
   
 #### How to run
   
-  It runs on flask-socketio so it is run via python
-  `python -m app`
+  It runs on flask-socketio so it is run via python.
+  Run in the terminal `python -m app`
 
 #### File Descriptions:
   ###### app.py
