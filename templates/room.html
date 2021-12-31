@@ -57,11 +57,19 @@
                 document.getElementById("message").value = "";
                 return false;
             };
+
+            document.getElementById("ready-button").onclick = function() {
+                socket.emit("ready", {"name": localStorage.getItem("name"), "roomname": roomName})
+                document.getElementById("ready-button").setAttribute("disabled", "")
+            }
             
             // Encases all of the messages from server
             socket.on("server_message", function(data) {
                 if (data["msgtype"] == "user_message") {
                     chat_message(data["message"], data["name"]);
+                }
+                else if (data["msgtype"] == "user_ready"){
+                    chat_message(data["message"])
                 }
                 // Name change
                 else if (data["msgtype"] == "name_change") {
@@ -95,7 +103,7 @@
                 }
             });
 
-            function chat_message(message, name) {
+            function chat_message(message, name, target) {
                 let mainNode = document.createElement("li");
                 mainNode.className = "mainNode m-1 p-1 d-flex";
                 
@@ -176,10 +184,48 @@
         </div>
 
         <main class="row">
-            <div id="main_content" class="col-lg-9">
-                <div class="col-3 border"></div>
-                <div class="col-3 border"></div>
-                <div class="col-3 border"></div>
+            <div class="col-lg-9">
+                <div id="ready" class="row">
+                    <div class="col m-5">
+                        <button id="ready-button" class="btn btn-primary">Ready</button>
+                    </div>
+                    Users not ready:
+                    <ul id="unready-list">
+
+                    </ul>
+                </div>
+                <div id="main_content" class="row border d-none">
+                    <div class="col-4 border">
+                        <ul id="dice">
+                            <img src="../../static/dice/1 die.svg" width="80" height="80">
+                        </ul><ul id="dice">
+                            <img src="../../static/dice/2 die.svg" width="80" height="80">
+                        </ul><ul id="dice">
+                            <img src="../../static/dice/3 die.svg" width="80" height="80">
+                        </ul><ul id="dice">
+                            <img src="../../static/dice/4 die.svg" width="80" height="80">
+                        </ul><ul id="dice">
+                            <img src="../../static/dice/5 die.svg" width="80" height="80">
+                        </ul><ul id="dice">
+                            <img src="../../static/dice/6 die.svg" width="80" height="80">
+                        </ul><ul id="dice">
+                            <img src="../../static/dice/4 die.svg" width="80" height="80">
+                        </ul>
+                    </div>
+                    <div class="col-4 border">
+                        <ul id="combinations">
+
+                        </ul>
+                    </div>
+                    <div id="roll-bank" class="col-4 border">
+                        <button id="roll" type="button" class="btn btn-primary">
+                            Roll
+                        </button>
+                        <button id="bank" type="button" class="btn btn-primary">
+                            Bank
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div id="sidebar" class="col-lg-3">

@@ -18,6 +18,7 @@ Session(app)
 socketio = SocketIO(app, cors_allowed_origins="http://127.0.0.1:5000") # TODO: remove cors_allowed_origins in the finished state
 
 rooms = {}
+gamestate = {}
 
 
 """
@@ -135,7 +136,24 @@ def client_join(data):
 # Message through chatbox
 @socketio.on("client_message")
 def client_message(data):
-    emit("server_message", {"msgtype": "user_message", "message": data["message"], "name": data["name"]}, to=data["roomname"])
+    # Making sure that user is in room before sending
+    if data["name"] in rooms[data["roomname"]]:
+        emit("server_message", {"msgtype": "user_message", "message": data["message"], "name": data["name"]}, to=data["roomname"])
+
+# User readies
+@socketio.on("ready")
+def user_ready(data):
+    if data["name"] in rooms[data["roomname"]]:
+        gamestate[data["roomname"]] = {"users-ready": [], "turn-order": [], "scores": []}
+        readied = gamestate[data["roomname"]]["users-ready"]
+        if not data["name"] in readied:
+            gamestate[data["roomname"]]["users-ready"].append(data["name"])
+        
+        message = data["name"] + " has readied " + str(len(readied)) + "/" + str(len(rooms[data["roomname"]])) + " readied"
+        emit("server_message", {"msgtype": "user_ready", "message": message, "users-ready": readied}, to=data["roomname"])
+
+        if len(rooms[data["roomname"]]) == len(readied):
+            emit("server_message", {"msgtype": "game_start", "message": "The game has started", "turn_order": gamestate[data["roomname"]]["turn-order"]}, to=data["roomname"])
 
 # User requested a name change
 @socketio.on("name_change")
@@ -145,16 +163,18 @@ def name_change(data):
 
     # These should only activate if they mess with the javascript
     if not username:
-        emit("name_change_confirm", "New name cannot be nothing" )
+        emit("name_change_confirm", "Error: New name cannot be nothing" )
         return False
     elif type(username) != str:
-        emit("name_change_confirm", "New name must be text")
+        emit("name_change_confirm", "Error: New name must be text")
         return False
     elif len(username) > 20:
-        emit("name_change_confirm", "New name must be less than 20 characters long")
+        emit("name_change_confirm", "Error: New name must be less than 20 characters long")
         return False    
     elif username in rooms[data["roomname"]]:
-        emit("name_change_confirm", "New name must not be the same as another user")
+        emit("name_change_confirm", "Error: New name must not be the same as another user")
+    elif not data["old_name"] in rooms[data["roomname"]]:
+        emit("name_change_confirm", "Error: User is not in room. Reload page")
     # New name is within parameters
     else:
         session["name"] = username
@@ -171,7 +191,8 @@ def name_change(data):
 @socketio.on("disconnect")
 def disconnect():
     if session.get("room") in rooms:
-        rooms[session.get("room")].remove(session.get("name"))
+        if session.get("name") in rooms[session.get("room")]:
+            rooms[session.get("room")].remove(session.get("name"))
 
     leave_room(session.get("room"))
     emit("server_message", {"msgtype": "user_disconnect", "message": session.get("name") + " has disconnected", "name": session.get("name"), "userlist": rooms[session.get("room")]}, to=session.get("room"))
