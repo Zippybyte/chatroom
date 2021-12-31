@@ -1,21 +1,24 @@
 {% extends "layout.html" %}
 
-{% block script %}
-{% endblock %}
-
 {% block title %}
-    
+    : Lobby
 {% endblock %}
 
 {% block body %}
     <div class="container-fluid">
-        <div class="row">
-            <label>Create or Join a room</label>
-            <div class="h-1"></div>
-            <form id="join_room" class="d-inline-flex" method="post">
+        <div class="row g-0">
+            <h2 class="text-center">Create or Join a room</h2>
+            <form id="join_room" class="d-inline-flex justify-content-center"  method="post">
                 <input name="room" id="room" type="text" placeholder="Room" aria-label="Create or Join a room" autocomplete="off" autocapitalize="off" required>
                 <button class="btn btn-primary" type="submit">Enter</button>
             </form>
-        </div> 
+        </div>
+        
+        <br>
+
+        <div class="row g-0 text-center">
+            <p>Put in any word, phrase, or random blurb for a room name.</p>
+            <p>You will join that room or create it if it doesn't exist yet.</p>
+        </div>
     </div>
 {% endblock %}

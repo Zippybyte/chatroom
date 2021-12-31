@@ -17,20 +17,17 @@ Session(app)
 
 socketio = SocketIO(app, cors_allowed_origins="http://127.0.0.1:5000") # TODO: remove cors_allowed_origins in the finished state
 
+rooms = {}
 
 
 """
 Plans:
 
-Room system
-How do I know what room and name is?
-You use local storage to know.
-
-Make Speed
 
 TODO: 
-Room html
-App room code
+lobby info
+chatbox
+
 
 """
 
@@ -40,14 +37,13 @@ def lobby():
     if request.method == "POST":
         
         roomname = request.form.get("room") 
-        # FIGURE OUT HOW TO CHECK IF USER HAS A NAME in local storage then send them to room or username depending
 
         if len(roomname) <= 0:
             return error("Room name must not be empty") 
         elif type(roomname) != str:
             return error("Room name must be a made of letters", 400)
 
-        
+        session["room"] = roomname
 
         return redirect(url_for("username", roomname=roomname))
     else:
@@ -66,12 +62,38 @@ def username(roomname):
             return error("Username must be text", 400)
         elif len(username) > 20:
             return error("Username must be less than 20 characters long", 400)
+        elif roomname in rooms:
+            if username in rooms[roomname]:
+                return redirect(url_for("username_taken", roomname=roomname))
 
         session["name"] = username
 
         return redirect(url_for("room", roomname=roomname))
     else:
         return render_template("username.html")
+
+# Used if the user tries to join a room with the same name as someone in the room
+@app.route("/room/<string:roomname>/username/taken", methods=["GET", "POST"])
+def username_taken(roomname):
+
+    if request.method == "POST":
+        username = request.form.get("username")
+
+        if not username:
+            return error("Must input a username", 400)
+        elif type(username) != str:
+            return error("Username must be text", 400)
+        elif len(username) > 20:
+            return error("Username must be less than 20 characters long", 400)
+        elif roomname in rooms:
+            if username in rooms[roomname]:
+                return render_template("username_taken.html")
+
+        session["name"] = username
+
+        return redirect(url_for("room", roomname=roomname))
+    else:
+        return render_template("username_taken.html")
 
 # If the user goes directly to /room redirect them to lobby
 @app.route("/room/")
@@ -83,19 +105,39 @@ def no_room():
 def room(roomname):
     if request.method == "GET":
         return render_template("room.html", roomname=roomname)
-    else:
-        return redirect(url_for("username", roomname=roomname))
 
+# Basic connection
 @socketio.on("connect")
-def connect(data):
+def connect():
     emit("server_connect", "Server connected")
 
+# New user joined
 @socketio.on("client_join")
 def client_join(data):
-    join_room(data["roomname"])
-    session["room"] = data["roomname"]
-    emit("server_message", {"msgtype": "user_join", "message": data["name"] + " has joined"}, to=data["roomname"])
 
+    join_room(data["roomname"])
+    session["name"] = data["name"]
+    session["room"] = data["roomname"]
+
+    if data["roomname"] in rooms:
+        if data["name"] in rooms[data["roomname"]]:
+            leave_room(data["roomname"])
+            return redirect(url_for("username_taken", roomname=data["roomname"]))
+        
+        rooms[data["roomname"]].append(data["name"])
+    else:
+        rooms[data["roomname"]] = []
+        rooms[data["roomname"]].append(data["name"])
+    emit("server_message", {"msgtype": "user_join", "message": data["name"] + " has joined",  "name": data["name"], "userlist": rooms[data["roomname"]]}, to=data["roomname"])
+
+# Message through chatbox
+@socketio.on("client_message")
+def client_message(data):
+    # Making sure that user is in room before sending
+    if data["name"] in rooms[data["roomname"]]:
+        emit("server_message", {"msgtype": "user_message", "message": data["message"], "name": data["name"]}, to=data["roomname"])
+
+# User requested a name change
 @socketio.on("name_change")
 def name_change(data):
 
@@ -103,23 +145,39 @@ def name_change(data):
 
     # These should only activate if they mess with the javascript
     if not username:
-        emit("name_change_confirm", "New name cannot be nothing" )
+        emit("name_change_confirm", "Error: New name cannot be nothing" )
         return False
     elif type(username) != str:
-        emit("name_change_confirm", "New name must be text")
+        emit("name_change_confirm", "Error: New name must be text")
         return False
     elif len(username) > 20:
-        emit("name_change_confirm", "New name must be less than 20 characters long")
+        emit("name_change_confirm", "Error: New name must be less than 20 characters long")
         return False    
+    elif username in rooms[data["roomname"]]:
+        emit("name_change_confirm", "Error: New name must not be the same as another user")
+    elif not data["old_name"] in rooms[data["roomname"]]:
+        emit("name_change_confirm", "Error: User is not in room. Reload page")
     # New name is within parameters
     else:
         session["name"] = username
-        emit("name_change_confirm", "allowed")
-        emit("server_message", {"msgtype": "name_change", "message": '"'+ data["old_name"] + '" has changed their name to "' + data["new_name"] + '"'}, to=data["roomname"])
 
+        for name, i in zip(rooms[data["roomname"]], range(len(rooms[data["roomname"]]))):
+            if name == data["old_name"]:
+                rooms[data["roomname"]][i] = username
+
+        emit("name_change_confirm", "allowed")
+        emit("server_message", {"msgtype": "name_change", "message": '"'+ data["old_name"] + '" has changed their name to "' + data["new_name"] + '"',
+         "old_name": data["old_name"], "new_name": data["new_name"], "userlist": rooms[data["roomname"]]}, to=data["roomname"])
+
+# User disconnected
 @socketio.on("disconnect")
 def disconnect():
-    emit("server_message", {"msgtype": "user_disconnect", "message": session.get("name") + " has disconnected"}, to=session.get("room"))
+    if session.get("room") in rooms:
+        if session.get("name") in rooms[session.get("room")]:
+            rooms[session.get("room")].remove(session.get("name"))
+
+    leave_room(session.get("room"))
+    emit("server_message", {"msgtype": "user_disconnect", "message": session.get("name") + " has disconnected", "name": session.get("name"), "userlist": rooms[session.get("room")]}, to=session.get("room"))
 
 def errorhandler(e):
     """Handle error"""

@@ -3,3 +3,39 @@ a {
     text-decoration: none;
 }
 
+ul {
+    padding: 0;
+}
+
+.container-fluid  {
+    padding: 0;
+}
+
+.mainNode:hover {
+    background-color: #e0e0e0;
+}
+.mainNode:hover .nameNode{
+    border-color: #aaaaaa !important;
+}
+
+input {
+    height: 38px;
+}
+
+#chatbox {
+    max-width: 100%;
+}
+
+#chat {
+    height: 30rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border: 1px solid grey;
+    padding: 0px;
+    margin-bottom: 0px;
+}
+
+#chat li {
+    list-style-type: none;
+    overflow-wrap: break-word;
+}

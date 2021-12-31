@@ -3,12 +3,8 @@
 {% block frontscript %}
 <script type="text/javascript" charset="utf-8">
     document.addEventListener("DOMContentLoaded", function() {
-        if (localStorage.getItem("name") == "") {
+        if (localStorage.getItem("name") != null) {
             localStorage.removeItem("name");
-        }
-        else if (localStorage.getItem("name") != null) {
-            document.getElementById("username").value = localStorage.getItem("name");
-            document.getElementById("login").submit();
         };
 
         document.getElementById("login").onsubmit = function() {
@@ -20,11 +16,14 @@
 {% endblock %}
 
 {% block title %}
-: Choose your username
+: uh oh
 {% endblock %}
 
 {% block body %}
     <div class="container-fluid">
+        <h1 id="error" class="row justify-content-center">
+            Username already taken
+        </h1>
         <div class="row g-0 mt-5 text-center">
             <h3>Enter your username</h3>
             <form id="login" class="d-flex justify-content-center" method="post">
