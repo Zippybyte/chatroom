@@ -19,18 +19,6 @@ socketio = SocketIO(app, cors_allowed_origins="http://127.0.0.1:5000") # TODO: r
 
 rooms = {}
 
-
-"""
-Plans:
-
-
-TODO: 
-lobby info
-chatbox
-
-
-"""
-
 # Lobby
 @app.route("/", methods=["GET", "POST"])
 def lobby():

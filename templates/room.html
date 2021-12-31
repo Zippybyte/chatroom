@@ -20,7 +20,6 @@
             socket.on("server_connect", function(data) {
                 console.log(data);
                 socket.emit("client_join", {"name": localStorage.getItem("name"), "roomname": roomName});
-                localStorage.setItem("taken", false)
                 
                 socket.once("userlist", function(data) {
                     userlist = data["userlist"];
