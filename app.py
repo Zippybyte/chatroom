@@ -18,7 +18,6 @@ Session(app)
 socketio = SocketIO(app, cors_allowed_origins="http://127.0.0.1:5000") # TODO: remove cors_allowed_origins in the finished state
 
 rooms = {}
-gamestate = {}
 
 
 """
@@ -139,21 +138,6 @@ def client_message(data):
     # Making sure that user is in room before sending
     if data["name"] in rooms[data["roomname"]]:
         emit("server_message", {"msgtype": "user_message", "message": data["message"], "name": data["name"]}, to=data["roomname"])
-
-# User readies
-@socketio.on("ready")
-def user_ready(data):
-    if data["name"] in rooms[data["roomname"]]:
-        gamestate[data["roomname"]] = {"users-ready": [], "turn-order": [], "scores": []}
-        readied = gamestate[data["roomname"]]["users-ready"]
-        if not data["name"] in readied:
-            gamestate[data["roomname"]]["users-ready"].append(data["name"])
-        
-        message = data["name"] + " has readied " + str(len(readied)) + "/" + str(len(rooms[data["roomname"]])) + " readied"
-        emit("server_message", {"msgtype": "user_ready", "message": message, "users-ready": readied}, to=data["roomname"])
-
-        if len(rooms[data["roomname"]]) == len(readied):
-            emit("server_message", {"msgtype": "game_start", "message": "The game has started", "turn_order": gamestate[data["roomname"]]["turn-order"]}, to=data["roomname"])
 
 # User requested a name change
 @socketio.on("name_change")
