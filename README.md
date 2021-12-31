@@ -4,6 +4,7 @@
   
   I made a simple chatroom website. 
   Chatroom is a simple... well chatroom website.
+  _also I'm not creative with names_
   You can create rooms by just imputting a room name and people can connect to the room with the room name.
   
 #### How to run
@@ -14,10 +15,10 @@
 #### File Descriptions:
   ###### app.py
   The main application, it's made with python, flask, and flask-socketio.
-  It has all of the server-side code and serves pages and handles the communication with socketio.
+  It has almost all of the server-side code and serves pages and handles the communication with socketio.
   
   ###### helpers.py
-  Only has the function error which displays the error.html page when an error happens.
+  Has the function `error` which renders a page for errors. I had planned to use this for more but most of the code ended up being simple enough to not need it.
   
   ###### requirements.txt
   `requirements.txt` has all of the required packages so that the venv doesn't break whenever something updates.
@@ -36,7 +37,8 @@
   
   #### templates
   - ###### lobby.html
-  You can create a room by inputting a word, name, or just random words.
+  
+  You can create a room by inputting a word, name, or just random characters.
   People can then connect to that room by putting in that same name or connect via a link. 
   
   - ###### username.html
@@ -60,21 +62,12 @@
   The flask layout page for everything, it contains the script links to socketio and bootstrap, and the stylesheets to `styles.css` and bootstrap.
  
 #### Descisions Descisions...:  
+  - Why a browser based chatroom?
+  I was planning to create an online game for speed but because of time constraints I ended up doing this. I do feel it's a bit cheap to do this but I kind of just want to finish the project before 2022.
+  
   - Why use websocket?
   I was planning to make something with more realtime interaction and I looked into AJAX but that didn't seem good enough for something rea time. Although because of time constraints I had to scrap the idea.
   
-  - 
-  
-  
-#### Problems and what I wish I did
-  I definitely had a lot of difficulty with this
-  
-  ###### How do you bring a 
-  
-  
-  
-  
-  
-  
-  
-  
+  - Why did you decide not to allow duplicate user names?
+  I decided not to allow duplicate users in the same room because I would have to code around the duplicates and having to implement something probably an id system to know who is who.
+ 
