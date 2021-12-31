@@ -161,7 +161,7 @@
 
 {% block body %}
     <div class="container-fluid">
-        <div id="topbar" class="row-lg">
+        <div id="topbar" class="row-lg g-0">
             <div class="col-lg">
                 <a href="/"><button id="leave" class="btn btn-primary">Leave</button></a>
                 <button id="change_name" type="button" class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#change_name_collapse" aria-controls="change_name_collapse" aria-expanded="false">Change name</button>
@@ -175,17 +175,22 @@
             </div>
         </div>
 
-        <main class="row">
-            <ul id="chat">
-
-            </ul>
-            <div>
-                <form id="chatbox" class="d-inline-flex">
-                    <input name="message" id="message" type="text" autocomplete="off" required>
-                    <button class="btn btn-primary" id="message_submit" type="submit">Send</button>
+        <main class="row g-0">
+            <div id="chatdiv" class="col-lg-9">
+                <ul id="chat">
+    
+                </ul>
+                <form id="chatbox" class="d-table w-100">
+                    <div class="d-table-cell w-100">
+                        <input name="message" id="message" class="w-100" type="text" autocomplete="off" required>
+                    </div>
+                    <div class="d-table-cell align-top">
+                        <button class="btn btn-primary" id="message_submit" type="submit">Send</button>
+                    </div>
                 </form>
             </div>
-            <div id="sidebar" class="col-lg-3">
+            
+            <div id="sidebar" class="col-lg-3 align-bottom">
                 <div class="accordion" id="user_list_accordian">
                     <div class="accordion-item">
                       <h2 class="accordion-header" id="user_list_heading">
@@ -202,7 +207,6 @@
                       </div>
                     </div>
                 </div>
-                
             </div>
         </main>
     </div>

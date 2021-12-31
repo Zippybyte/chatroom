@@ -1,9 +1,18 @@
+html, body {
+    height: 100%;   
+    width: 100%;
+}
+
 a {
     color: white;
     text-decoration: none;
 }
 
 ul {
+    padding: 0;
+}
+
+.container-fluid  {
     padding: 0;
 }
 
@@ -14,14 +23,20 @@ ul {
     border-color: #aaaaaa !important;
 }
 
+#message {
+    height: 38px;
+}
+
 #login {
     width: auto;
 }
 
-#chat {
-    height: 10rem;
-    max-height: 30rem;
+#chatbox {
     max-width: 100%;
+}
+
+#chat {
+    height: 30rem;
     overflow-x: hidden;
     overflow-y: auto;
     border: 1px solid grey;
